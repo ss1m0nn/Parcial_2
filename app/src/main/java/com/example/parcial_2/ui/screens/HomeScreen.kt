@@ -1,63 +1,102 @@
 package com.example.parcial_2.ui.screens
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.example.parcial_2.model.data.Recipe
-import com.example.parcial_2.viewmodel.RecipeViewModel
-import com.example.parcial_2.viewmodel.UiState
+import com.example.parcial_2.model.data.Receta
+import com.example.parcial_2.viewmodel.HomeUiState
+import com.example.parcial_2.viewmodel.HomeViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    viewModel: RecipeViewModel,
-    onRecipeClick: (String) -> Unit
+    onAgregarClick: () -> Unit,
+    onEditarClick: (Receta) -> Unit,
+    viewModel: HomeViewModel
 ) {
-    val recipesState by viewModel.recipesState.collectAsState()
+    val uiState by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarRecetas()
+    }
 
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Recetas del Chef") },
-                colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAgregarClick,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "agregar receta",
+                    tint = Color.White
                 )
-            )
+            }
         }
     ) { paddingValues ->
-        Box(modifier = Modifier.padding(paddingValues).fillMaxSize()) {
-            when (val state = recipesState) {
-                is UiState.Loading -> {
-                    CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+        ) {
+            Text(
+                text = "Mis Recetas",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
+            )
+
+            when (val state = uiState) {
+                is HomeUiState.Loading -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
                 }
-                is UiState.Success -> {
-                    RecipeList(recipes = state.data, onRecipeClick = onRecipeClick)
+
+                is HomeUiState.Error -> {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text(text = state.message, color = MaterialTheme.colorScheme.error)
+                            Spacer(modifier = Modifier.height(12.dp))
+                            Button(onClick = { viewModel.cargarRecetas() }) {
+                                Text("Reintentar")
+                            }
+                        }
+                    }
                 }
-                is UiState.Error -> {
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Text(
-                            text = "Error: ${state.message}",
-                            color = MaterialTheme.colorScheme.error,
-                            style = MaterialTheme.typography.bodyLarge
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Button(onClick = { viewModel.fetchRecipes() }) {
-                            Text("Reintentar")
+
+                is HomeUiState.Success -> {
+                    if (state.recetas.isEmpty()) {
+                        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                            Text("Aún no hay recetas. ¡Agrega una!", color = Color.Gray)
+                        }
+                    } else {
+                        LazyColumn(
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                            verticalArrangement = Arrangement.spacedBy(12.dp)
+                        ) {
+                            items(state.recetas) { receta ->
+                                RecetaCard(
+                                    receta = receta,
+                                    onEditar = { onEditarClick(receta) },
+                                    onEliminar = { viewModel.eliminarReceta(receta.id) }
+                                )
+                            }
                         }
                     }
                 }
@@ -67,55 +106,122 @@ fun HomeScreen(
 }
 
 @Composable
-fun RecipeList(recipes: List<Recipe>, onRecipeClick: (String) -> Unit) {
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        items(recipes) { recipe ->
-            RecipeItem(recipe = recipe, onClick = { onRecipeClick(recipe.id) })
-        }
-    }
-}
+fun RecetaCard(
+    receta: Receta,
+    onEditar: () -> Unit,
+    onEliminar: () -> Unit
+) {
+    var menuExpanded by remember { mutableStateOf(false) }
+    var mostrarConfirmacion by remember { mutableStateOf(false) }
 
-@Composable
-fun RecipeItem(recipe: Recipe, onClick: () -> Unit) {
+    if (mostrarConfirmacion) {
+        AlertDialog(
+            onDismissRequest = { mostrarConfirmacion = false },
+            title = { Text("Eliminar receta") },
+            text = { Text("¿Seguro que quieres eliminar \"${receta.nombre}\"?") },
+            confirmButton = {
+                TextButton(onClick = {
+                    mostrarConfirmacion = false
+                    onEliminar()
+                }) {
+                    Text("Eliminar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { mostrarConfirmacion = false }) {
+                    Text("Cancelar")
+                }
+            }
+        )
+    }
+
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable(onClick = onClick),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
-        Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(12.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             AsyncImage(
-                model = recipe.imageUrl,
-                contentDescription = recipe.name,
+                model = receta.imagen,
+                contentDescription = receta.nombre,
+                contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(180.dp),
-                contentScale = ContentScale.Crop
+                    .size(80.dp)
+                    .clip(RoundedCornerShape(8.dp))
             )
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = recipe.name, style = MaterialTheme.typography.titleLarge)
-                Spacer(modifier = Modifier.height(4.dp))
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = recipe.category,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.secondary
+                    text = receta.nombre,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(8.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text(
-                        text = "⏱ ${recipe.preparationTime} min",
-                        style = MaterialTheme.typography.bodySmall
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Default.Star,
+                        contentDescription = null,
+                        tint = Color(0xFFFFC107),
+                        modifier = Modifier.size(16.dp)
                     )
+                    Spacer(modifier = Modifier.width(4.dp))
                     Text(
-                        text = "⭐ ${recipe.averageScore}",
-                        style = MaterialTheme.typography.bodySmall
+                        text = String.format("%.1f", receta.puntuacionPromedio),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = Color.Gray
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(4.dp))
+
+                Text(
+                    text = "⏱ ${receta.tiempoPreparacion} min",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+
+                Spacer(modifier = Modifier.height(2.dp))
+
+                Text(
+                    text = "Preparada ${receta.vecesPreparada} ${if (receta.vecesPreparada == 1) "vez" else "veces"}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray
+                )
+            }
+
+            // three dots menu
+            Box {
+                IconButton(onClick = { menuExpanded = true }) {
+                    Icon(Icons.Default.MoreVert, contentDescription = "opciones")
+                }
+                DropdownMenu(
+                    expanded = menuExpanded,
+                    onDismissRequest = { menuExpanded = false }
+                ) {
+                    DropdownMenuItem(
+                        text = { Text("Editar") },
+                        onClick = {
+                            menuExpanded = false
+                            onEditar()
+                        }
+                    )
+                    DropdownMenuItem(
+                        text = { Text("Eliminar", color = MaterialTheme.colorScheme.error) },
+                        onClick = {
+                            menuExpanded = false
+                            mostrarConfirmacion = true
+                        }
                     )
                 }
             }

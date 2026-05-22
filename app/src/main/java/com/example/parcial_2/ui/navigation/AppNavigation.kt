@@ -1,48 +1,51 @@
 package com.example.parcial_2.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.navArgument
+import com.example.parcial_2.ui.screens.AgregarRecetaScreen
 import com.example.parcial_2.ui.screens.HomeScreen
-import com.example.parcial_2.ui.screens.RecipeDetailScreen
-import com.example.parcial_2.viewmodel.RecipeViewModel
+import com.example.parcial_2.viewmodel.HomeViewModel
 
 sealed class Screen(val route: String) {
     object Home : Screen("home")
-    object Detail : Screen("detail/{recipeId}") {
-        fun createRoute(recipeId: String) = "detail/$recipeId"
-    }
+    object AgregarReceta : Screen("agregar_receta")
+    object EditarReceta : Screen("editar_receta")
 }
 
 @Composable
-fun AppNavigation(
-    navController: NavHostController,
-    viewModel: RecipeViewModel
-) {
+fun AppNavigation(navController: NavHostController) {
+
+    val homeViewModel: HomeViewModel = viewModel()
+
     NavHost(
         navController = navController,
         startDestination = Screen.Home.route
     ) {
         composable(Screen.Home.route) {
             HomeScreen(
-                viewModel = viewModel,
-                onRecipeClick = { recipeId ->
-                    navController.navigate(Screen.Detail.createRoute(recipeId))
+                viewModel = homeViewModel,
+                onAgregarClick = {
+                    navController.navigate(Screen.AgregarReceta.route)
+                },
+                onEditarClick = { receta ->
+                    // store the recipe in the viewmodel before navigating
+                    homeViewModel.seleccionarReceta(receta)
+                    navController.navigate(Screen.EditarReceta.route)
                 }
             )
         }
-        composable(
-            route = Screen.Detail.route,
-            arguments = listOf(navArgument("recipeId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val recipeId = backStackEntry.arguments?.getString("recipeId") ?: ""
-            RecipeDetailScreen(
-                recipeId = recipeId,
-                viewModel = viewModel,
-                onBackClick = { navController.popBackStack() }
+        composable(Screen.AgregarReceta.route) {
+            AgregarRecetaScreen(onBack = { navController.popBackStack() })
+        }
+        composable(Screen.EditarReceta.route) {
+            val receta = homeViewModel.recetaSeleccionada
+            AgregarRecetaScreen(
+                onBack = { navController.popBackStack() },
+                recetaExistente = receta
             )
         }
     }
