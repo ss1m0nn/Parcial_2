@@ -1,5 +1,6 @@
 package com.example.parcial_2.ui.screens
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,6 +28,7 @@ import com.example.parcial_2.viewmodel.HomeViewModel
 fun HomeScreen(
     onAgregarClick: () -> Unit,
     onEditarClick: (Receta) -> Unit,
+    onRecetaClick: (Receta) -> Unit,
     viewModel: HomeViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -93,6 +95,7 @@ fun HomeScreen(
                             items(state.recetas) { receta ->
                                 RecetaCard(
                                     receta = receta,
+                                    onClick = { onRecetaClick(receta) },
                                     onEditar = { onEditarClick(receta) },
                                     onEliminar = { viewModel.eliminarReceta(receta.id) }
                                 )
@@ -108,6 +111,7 @@ fun HomeScreen(
 @Composable
 fun RecetaCard(
     receta: Receta,
+    onClick: () -> Unit,
     onEditar: () -> Unit,
     onEliminar: () -> Unit
 ) {
@@ -136,7 +140,9 @@ fun RecetaCard(
     }
 
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(12.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
