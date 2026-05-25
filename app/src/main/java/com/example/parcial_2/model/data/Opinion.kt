@@ -6,5 +6,6 @@ data class Opinion(
     val nombreComensal: String,
     val comentario: String,
     val calificacion: Int,
+    val vecesPreparada: Int,
     val fecha: String
 )

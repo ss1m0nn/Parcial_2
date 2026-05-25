@@ -31,7 +31,8 @@ class AgregarRecetaViewModel : ViewModel() {
         ingredientes: List<String>,
         pasos: List<String>,
         categoria: String,
-        tiempoPreparacion: Int
+        tiempoPreparacion: Int,
+        porciones: Int
     ) {
         viewModelScope.launch {
             _uiState.value = AgregarUiState.Loading
@@ -41,9 +42,9 @@ class AgregarRecetaViewModel : ViewModel() {
                 ingredientes = ingredientes,
                 pasos = pasos,
                 categoria = categoria,
-                tiempoPreparacion = tiempoPreparacion
+                tiempoPreparacion = tiempoPreparacion,
+                porciones = porciones
             )
-            // if id is null it's a new recipe, otherwise update
             val result = if (id == null) {
                 crearRecetaUseCase(request)
             } else {

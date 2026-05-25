@@ -51,7 +51,7 @@ fun DetalleRecetaScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            // Imagen de la receta
+            // imagen de la receta
             AsyncImage(
                 model = receta.imagen,
                 contentDescription = receta.nombre,
@@ -65,7 +65,7 @@ fun DetalleRecetaScreen(
                 modifier = Modifier
                     .padding(16.dp)
             ) {
-                // Fila de Info Rápida (Categoría y Tiempo)
+                // fila de info rápida (categoría y puntuación)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -76,7 +76,7 @@ fun DetalleRecetaScreen(
                         label = { Text(receta.categoria) },
                         shape = RoundedCornerShape(16.dp)
                     )
-                    
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Star,
@@ -95,19 +95,19 @@ fun DetalleRecetaScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Detalles Técnicos
+                // detalles técnicos
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     InfoItem(label = "Tiempo", value = "${receta.tiempoPreparacion} min")
                     InfoItem(label = "Dificultad", value = calcularDificultad(receta.tiempoPreparacion))
-                    InfoItem(label = "Hecha", value = "${receta.vecesPreparada} veces")
+                    InfoItem(label = "Porciones", value = "${receta.porciones}")
                 }
 
                 Divider(modifier = Modifier.padding(vertical = 16.dp))
 
-                // Ingredientes
+                // ingredientes
                 Text(
                     text = "Ingredientes",
                     style = MaterialTheme.typography.titleLarge,
@@ -132,7 +132,7 @@ fun DetalleRecetaScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Pasos de preparación
+                // pasos de preparación
                 Text(
                     text = "Preparación",
                     style = MaterialTheme.typography.titleLarge,
@@ -161,7 +161,7 @@ fun DetalleRecetaScreen(
                         }
                     }
                 }
-                
+
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
@@ -176,7 +176,7 @@ fun InfoItem(label: String, value: String) {
     }
 }
 
-// Lógica simple para determinar dificultad basada en el tiempo
+// simple logic to determine difficulty based on time
 fun calcularDificultad(tiempo: Int): String {
     return when {
         tiempo <= 20 -> "Fácil"

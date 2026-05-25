@@ -200,7 +200,7 @@ fun RecetaCard(
                 Spacer(modifier = Modifier.height(2.dp))
 
                 Text(
-                    text = "Preparada ${receta.vecesPreparada} ${if (receta.vecesPreparada == 1) "vez" else "veces"}",
+                    text = "🍽 ${receta.porciones} ${if (receta.porciones == 1) "porción" else "porciones"}",
                     style = MaterialTheme.typography.bodySmall,
                     color = Color.Gray
                 )

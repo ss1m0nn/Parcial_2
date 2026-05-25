@@ -6,5 +6,6 @@ data class RecetaRequest(
     val ingredientes: List<String>,
     val pasos: List<String>,
     val categoria: String,
-    val tiempoPreparacion: Int
+    val tiempoPreparacion: Int,
+    val porciones: Int
 )

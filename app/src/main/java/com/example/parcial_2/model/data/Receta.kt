@@ -1,4 +1,5 @@
 package com.example.parcial_2.model.data
+
 import kotlin.collections.List
 
 data class Receta(
@@ -9,6 +10,6 @@ data class Receta(
     val pasos: List<String>,
     val categoria: String,
     val tiempoPreparacion: Int,
-    val vecesPreparada: Int,
+    val porciones: Int,
     val puntuacionPromedio: Double
 )

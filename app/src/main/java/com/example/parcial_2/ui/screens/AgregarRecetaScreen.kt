@@ -33,6 +33,7 @@ fun AgregarRecetaScreen(
     var imagen by remember { mutableStateOf(recetaExistente?.imagen ?: "") }
     var categoria by remember { mutableStateOf(recetaExistente?.categoria ?: "") }
     var tiempoPreparacion by remember { mutableStateOf(recetaExistente?.tiempoPreparacion?.toString() ?: "") }
+    var porciones by remember { mutableStateOf(recetaExistente?.porciones?.toString() ?: "") }
 
     val ingredientes = remember { mutableStateListOf<String>().also { it.addAll(recetaExistente?.ingredientes ?: emptyList()) } }
     val pasos = remember { mutableStateListOf<String>().also { it.addAll(recetaExistente?.pasos ?: emptyList()) } }
@@ -93,6 +94,14 @@ fun AgregarRecetaScreen(
                 value = tiempoPreparacion,
                 onValueChange = { tiempoPreparacion = it },
                 label = { Text("Tiempo de preparación (min)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+
+            OutlinedTextField(
+                value = porciones,
+                onValueChange = { porciones = it },
+                label = { Text("Porciones") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
@@ -189,7 +198,8 @@ fun AgregarRecetaScreen(
                         ingredientes = ingredientes.toList(),
                         pasos = pasos.toList(),
                         categoria = categoria,
-                        tiempoPreparacion = tiempoPreparacion.toIntOrNull() ?: 0
+                        tiempoPreparacion = tiempoPreparacion.toIntOrNull() ?: 0,
+                        porciones = porciones.toIntOrNull() ?: 1
                     )
                 },
                 modifier = Modifier.fillMaxWidth(),
