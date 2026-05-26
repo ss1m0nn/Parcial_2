@@ -1,5 +1,6 @@
 package com.example.parcial_2.ui.screens
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,10 +11,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -21,14 +21,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.parcial_2.model.data.Receta
+import com.example.parcial_2.viewmodel.EstadisticasViewModel
+import com.example.parcial_2.viewmodel.EstadisticasUiState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
+@SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetalleRecetaScreen(
     receta: Receta,
+    viewModel: EstadisticasViewModel,
     onBack: () -> Unit,
     onOpinionClick: () -> Unit
 ) {
+    // Estado observado del ViewModel
+    // Cambia tu línea actual por esta:
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -62,11 +71,8 @@ fun DetalleRecetaScreen(
                 contentScale = ContentScale.Crop
             )
 
-            Column(
-                modifier = Modifier
-                    .padding(16.dp)
-            ) {
-                // Fila de Info Rápida (Categoría y Tiempo)
+            Column(modifier = Modifier.padding(16.dp)) {
+                // Fila de Info Rápida
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -77,7 +83,7 @@ fun DetalleRecetaScreen(
                         label = { Text(receta.categoria) },
                         shape = RoundedCornerShape(16.dp)
                     )
-                    
+
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Star,
@@ -96,7 +102,6 @@ fun DetalleRecetaScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Detalles Técnicos Actualizados
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
@@ -108,7 +113,6 @@ fun DetalleRecetaScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Botón de Opinión para registrar nuevas preparaciones
                 Button(
                     onClick = onOpinionClick,
                     modifier = Modifier.fillMaxWidth(),
@@ -124,23 +128,11 @@ fun DetalleRecetaScreen(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
                 // Ingredientes
-                Text(
-                    text = "Ingredientes",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                Text(text = "Ingredientes", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(8.dp))
                 receta.ingredientes.forEach { ingrediente ->
-                    Row(
-                        modifier = Modifier.padding(vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .background(MaterialTheme.colorScheme.secondary, CircleShape)
-                        )
+                    Row(modifier = Modifier.padding(vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                        Box(modifier = Modifier.size(6.dp).background(MaterialTheme.colorScheme.secondary, CircleShape))
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(text = ingrediente, style = MaterialTheme.typography.bodyLarge)
                     }
@@ -148,36 +140,49 @@ fun DetalleRecetaScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // Pasos de preparación
-                Text(
-                    text = "Preparación",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+                // Preparación
+                Text(text = "Preparación", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
                 Spacer(modifier = Modifier.height(8.dp))
                 receta.pasos.forEachIndexed { index, paso ->
                     Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 6.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        )
+                        modifier = Modifier.fillMaxWidth().padding(vertical = 6.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
                     ) {
                         Row(modifier = Modifier.padding(12.dp)) {
-                            Text(
-                                text = "${index + 1}",
-                                fontWeight = FontWeight.ExtraBold,
-                                color = MaterialTheme.colorScheme.primary,
-                                fontSize = 18.sp
-                            )
+                            Text(text = "${index + 1}", fontWeight = FontWeight.ExtraBold, color = MaterialTheme.colorScheme.primary, fontSize = 18.sp)
                             Spacer(modifier = Modifier.width(12.dp))
                             Text(text = paso, style = MaterialTheme.typography.bodyLarge)
                         }
                     }
                 }
-                
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+                // Estadísticas
+                Text(text = "Estadísticas Detalladas", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+
+                LaunchedEffect(receta.id) {
+                    viewModel.cargarDatos(receta.id)
+                }
+
+                Card(
+                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        when (val state = uiState) {
+                            is EstadisticasUiState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
+                            is EstadisticasUiState.Success -> {
+                                val stats = state.data
+                                Text("Veces preparada: ${stats.totalPreparaciones}")
+                                Text("Opiniones totales: ${stats.totalOpiniones}")
+                            }
+                            is EstadisticasUiState.Error -> Text("Error al cargar: ${state.message}", color = MaterialTheme.colorScheme.error)
+                            else -> {}
+                        }
+                    }
+                }
+
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
@@ -199,3 +204,5 @@ fun calcularDificultad(tiempo: Int): String {
         else -> "Difícil"
     }
 }
+
+

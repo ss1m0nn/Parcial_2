@@ -40,6 +40,7 @@ android {
 }
 
 dependencies {
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0") // O una versión superior
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

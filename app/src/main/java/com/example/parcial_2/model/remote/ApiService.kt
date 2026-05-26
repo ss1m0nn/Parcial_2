@@ -4,6 +4,8 @@ import com.example.parcial_2.model.data.Opinion
 import com.example.parcial_2.model.data.OpinionRequest
 import com.example.parcial_2.model.data.Receta
 import com.example.parcial_2.model.data.RecetaRequest
+import com.example.parcial_2.model.data.StatsResponse
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
@@ -30,4 +32,7 @@ interface ApiService {
 
     @POST("api/opiniones")
     suspend fun crearOpinion(@Body opinion: OpinionRequest): ApiResponse<Opinion>
+
+    @GET("api/recetas/{id}/estadisticas")
+    suspend fun getEstadisticas(@Path("id") id: String): StatsResponse
 }

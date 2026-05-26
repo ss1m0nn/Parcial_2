@@ -9,6 +9,7 @@ import com.example.parcial_2.ui.screens.AgregarRecetaScreen
 import com.example.parcial_2.ui.screens.DetalleRecetaScreen
 import com.example.parcial_2.ui.screens.HomeScreen
 import com.example.parcial_2.ui.screens.OpinionScreen
+import com.example.parcial_2.viewmodel.EstadisticasViewModel
 import com.example.parcial_2.viewmodel.HomeViewModel
 
 sealed class Screen(val route: String) {
@@ -23,6 +24,8 @@ sealed class Screen(val route: String) {
 fun AppNavigation(navController: NavHostController) {
 
     val homeViewModel: HomeViewModel = viewModel()
+
+    val estadisticasViewModel: EstadisticasViewModel = viewModel()
 
     NavHost(
         navController = navController,
@@ -57,8 +60,10 @@ fun AppNavigation(navController: NavHostController) {
         composable(Screen.DetalleReceta.route) {
             val receta = homeViewModel.recetaSeleccionada
             if (receta != null) {
+                // 2. ¡Aquí está el cambio clave! Pasamos el viewModel
                 DetalleRecetaScreen(
                     receta = receta,
+                    viewModel = estadisticasViewModel, // <--- ESTO FALTABA
                     onBack = { navController.popBackStack() },
                     onOpinionClick = {
                         navController.navigate(Screen.Opinion.route)

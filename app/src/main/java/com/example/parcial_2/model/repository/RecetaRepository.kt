@@ -2,9 +2,15 @@ package com.example.parcial_2.model.repository
 
 import com.example.parcial_2.model.data.Receta
 import com.example.parcial_2.model.data.RecetaRequest
+import com.example.parcial_2.model.data.StatsResponse
 import com.example.parcial_2.model.remote.RetrofitClient
+import com.example.parcial_2.model.remote.RetrofitClient.apiService
 
 class RecetaRepository {
+
+    suspend fun obtenerEstadisticas(id: String): StatsResponse {
+        return apiService.getEstadisticas(id)
+    }
 
     private val api = RetrofitClient.apiService
 
