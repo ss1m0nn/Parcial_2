@@ -48,8 +48,9 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
+    // Corregido para coincidir con libs.versions.toml
+    implementation(libs.androidx.compose.material.icons.extended)
     
-    // Additional Dependencies
     implementation(libs.retrofit)
     implementation(libs.retrofit.converter.gson)
     implementation(libs.androidx.navigation.compose)

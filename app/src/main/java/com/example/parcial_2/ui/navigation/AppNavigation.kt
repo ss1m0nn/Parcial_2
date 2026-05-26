@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import com.example.parcial_2.ui.screens.AgregarRecetaScreen
 import com.example.parcial_2.ui.screens.DetalleRecetaScreen
 import com.example.parcial_2.ui.screens.HomeScreen
+import com.example.parcial_2.ui.screens.OpinionScreen
 import com.example.parcial_2.viewmodel.HomeViewModel
 
 sealed class Screen(val route: String) {
@@ -15,6 +16,7 @@ sealed class Screen(val route: String) {
     object AgregarReceta : Screen("agregar_receta")
     object EditarReceta : Screen("editar_receta")
     object DetalleReceta : Screen("detalle_receta")
+    object Opinion : Screen("opinion")
 }
 
 @Composable
@@ -57,7 +59,30 @@ fun AppNavigation(navController: NavHostController) {
             if (receta != null) {
                 DetalleRecetaScreen(
                     receta = receta,
-                    onBack = { navController.popBackStack() }
+                    onBack = { navController.popBackStack() },
+                    onOpinionClick = {
+                        navController.navigate(Screen.Opinion.route)
+                    }
+                )
+            }
+        }
+        composable(Screen.Opinion.route) {
+            val receta = homeViewModel.recetaSeleccionada
+            if (receta != null) {
+                OpinionScreen(
+                    receta = receta,
+                    onBack = { navController.popBackStack() },
+                    onSubmit = { porciones, puntuacion, nota, veces ->
+                        homeViewModel.guardarOpinion(
+                            porciones = porciones,
+                            puntuacion = puntuacion,
+                            nota = nota,
+                            veces = veces,
+                            onSuccess = {
+                                navController.popBackStack(Screen.Home.route, false)
+                            }
+                        )
+                    }
                 )
             }
         }

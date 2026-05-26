@@ -1,5 +1,7 @@
 package com.example.parcial_2.model.remote
 
+import com.example.parcial_2.model.data.Opinion
+import com.example.parcial_2.model.data.OpinionRequest
 import com.example.parcial_2.model.data.Receta
 import com.example.parcial_2.model.data.RecetaRequest
 import retrofit2.http.Body
@@ -22,4 +24,10 @@ interface ApiService {
 
     @DELETE("api/recetas/{id}")
     suspend fun eliminarReceta(@Path("id") id: String): ApiResponse<Unit>
+
+    @GET("api/opiniones/receta/{recetaId}")
+    suspend fun getOpinionesPorReceta(@Path("recetaId") recetaId: String): ApiResponse<List<Opinion>>
+
+    @POST("api/opiniones")
+    suspend fun crearOpinion(@Body opinion: OpinionRequest): ApiResponse<Opinion>
 }

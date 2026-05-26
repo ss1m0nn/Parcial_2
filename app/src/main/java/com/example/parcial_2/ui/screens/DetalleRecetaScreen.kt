@@ -7,7 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -26,7 +26,8 @@ import com.example.parcial_2.model.data.Receta
 @Composable
 fun DetalleRecetaScreen(
     receta: Receta,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onOpinionClick: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -34,7 +35,7 @@ fun DetalleRecetaScreen(
                 title = { Text(receta.nombre) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Regresar")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Regresar")
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -51,7 +52,7 @@ fun DetalleRecetaScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
         ) {
-            // imagen de la receta
+            // Imagen de la receta
             AsyncImage(
                 model = receta.imagen,
                 contentDescription = receta.nombre,
@@ -65,7 +66,7 @@ fun DetalleRecetaScreen(
                 modifier = Modifier
                     .padding(16.dp)
             ) {
-                // fila de info rápida (categoría y puntuación)
+                // Fila de Info Rápida (Categoría y Tiempo)
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -76,7 +77,7 @@ fun DetalleRecetaScreen(
                         label = { Text(receta.categoria) },
                         shape = RoundedCornerShape(16.dp)
                     )
-
+                    
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Star,
@@ -86,7 +87,7 @@ fun DetalleRecetaScreen(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "${receta.puntuacionPromedio}",
+                            text = String.format("%.1f", receta.puntuacionPromedio),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )
@@ -95,19 +96,34 @@ fun DetalleRecetaScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // detalles técnicos
+                // Detalles Técnicos Actualizados
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceAround
                 ) {
                     InfoItem(label = "Tiempo", value = "${receta.tiempoPreparacion} min")
                     InfoItem(label = "Dificultad", value = calcularDificultad(receta.tiempoPreparacion))
-                    InfoItem(label = "Porciones", value = "${receta.porciones}")
+                    InfoItem(label = "Rinde", value = "${receta.porciones} pers.")
                 }
 
-                Divider(modifier = Modifier.padding(vertical = 16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
 
-                // ingredientes
+                // Botón de Opinión para registrar nuevas preparaciones
+                Button(
+                    onClick = onOpinionClick,
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(8.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                        contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                    )
+                ) {
+                    Text("Registrar puntuación de la receta", fontWeight = FontWeight.Bold)
+                }
+
+                HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+                // Ingredientes
                 Text(
                     text = "Ingredientes",
                     style = MaterialTheme.typography.titleLarge,
@@ -132,7 +148,7 @@ fun DetalleRecetaScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // pasos de preparación
+                // Pasos de preparación
                 Text(
                     text = "Preparación",
                     style = MaterialTheme.typography.titleLarge,
@@ -161,7 +177,7 @@ fun DetalleRecetaScreen(
                         }
                     }
                 }
-
+                
                 Spacer(modifier = Modifier.height(32.dp))
             }
         }
@@ -176,7 +192,6 @@ fun InfoItem(label: String, value: String) {
     }
 }
 
-// simple logic to determine difficulty based on time
 fun calcularDificultad(tiempo: Int): String {
     return when {
         tiempo <= 20 -> "Fácil"

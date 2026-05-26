@@ -1,13 +1,10 @@
 package com.example.parcial_2.model.data
 
-data class Opinion(
-    val id: String,
+data class OpinionRequest(
     val recetaId: String,
     val nombreComensal: String,
     val comentario: String,
     val calificacion: Double,
     val porciones: Int,
-    val vecesHecha: Int,
-    val vecesPreparada: Int,
-    val fecha: String
+    val vecesPreparada: Int
 )
