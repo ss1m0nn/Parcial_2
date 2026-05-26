@@ -34,8 +34,7 @@ fun DetalleRecetaScreen(
     onBack: () -> Unit,
     onOpinionClick: () -> Unit
 ) {
-    // Estado observado del ViewModel
-    // Cambia tu línea actual por esta:
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     Scaffold(
