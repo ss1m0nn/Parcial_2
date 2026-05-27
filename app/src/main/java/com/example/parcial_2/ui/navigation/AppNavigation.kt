@@ -1,10 +1,14 @@
 package com.example.parcial_2.ui.navigation
 
+import android.R.attr.type
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.parcial_2.ui.screens.AgregarRecetaScreen
 import com.example.parcial_2.ui.screens.DetalleRecetaScreen
 import com.example.parcial_2.ui.screens.HomeScreen
@@ -18,6 +22,7 @@ sealed class Screen(val route: String) {
     object EditarReceta : Screen("editar_receta")
     object DetalleReceta : Screen("detalle_receta")
     object Opinion : Screen("opinion")
+
 }
 
 @Composable
@@ -60,14 +65,11 @@ fun AppNavigation(navController: NavHostController) {
         composable(Screen.DetalleReceta.route) {
             val receta = homeViewModel.recetaSeleccionada
             if (receta != null) {
-                // 2. ¡Aquí está el cambio clave! Pasamos el viewModel
                 DetalleRecetaScreen(
                     receta = receta,
-                    viewModel = estadisticasViewModel, // <--- ESTO FALTABA
+                    viewModel = estadisticasViewModel,
                     onBack = { navController.popBackStack() },
-                    onOpinionClick = {
-                        navController.navigate(Screen.Opinion.route)
-                    }
+                    onOpinionClick = { navController.navigate(Screen.Opinion.route)},
                 )
             }
         }
@@ -91,5 +93,7 @@ fun AppNavigation(navController: NavHostController) {
                 )
             }
         }
+
+        }
     }
-}
+

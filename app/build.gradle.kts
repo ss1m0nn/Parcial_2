@@ -40,7 +40,7 @@ android {
 }
 
 dependencies {
-    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0") // O una versión superior
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.0")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
@@ -49,7 +49,6 @@ dependencies {
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
-    // Corregido para coincidir con libs.versions.toml
     implementation(libs.androidx.compose.material.icons.extended)
     
     implementation(libs.retrofit)
@@ -59,6 +58,10 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
 
     testImplementation(libs.junit)
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
+    testImplementation("app.cash.turbine:turbine:1.0.0")
+    testImplementation("org.mockito:mockito-core:5.3.1")
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))

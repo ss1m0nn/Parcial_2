@@ -9,6 +9,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Analytics
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -22,8 +23,8 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.parcial_2.model.data.Receta
 import com.example.parcial_2.viewmodel.EstadisticasViewModel
-import com.example.parcial_2.viewmodel.EstadisticasUiState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.parcial_2.viewmodel.EstadisticasUiState
 
 @SuppressLint("DefaultLocale")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,6 +35,9 @@ fun DetalleRecetaScreen(
     onBack: () -> Unit,
     onOpinionClick: () -> Unit
 ) {
+    LaunchedEffect(receta.id) {
+        viewModel.cargarDatos(receta.id)
+    }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -158,28 +162,16 @@ fun DetalleRecetaScreen(
                 HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
 
                 // Estadísticas
-                Text(text = "Estadísticas Detalladas", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+                Text("Estadísticas Detalladas", style = MaterialTheme.typography.titleMedium)
 
-                LaunchedEffect(receta.id) {
-                    viewModel.cargarDatos(receta.id)
-                }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp),
-                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        when (val state = uiState) {
-                            is EstadisticasUiState.Loading -> CircularProgressIndicator(modifier = Modifier.align(Alignment.CenterHorizontally))
-                            is EstadisticasUiState.Success -> {
-                                val stats = state.data
-                                Text("Veces preparada: ${stats.totalPreparaciones}")
-                                Text("Opiniones totales: ${stats.totalOpiniones}")
-                            }
-                            is EstadisticasUiState.Error -> Text("Error al cargar: ${state.message}", color = MaterialTheme.colorScheme.error)
-                            else -> {}
-                        }
+                when (val state = uiState) {
+                    is EstadisticasUiState.Loading -> Text("Cargando...")
+                    is EstadisticasUiState.Success -> {
+                        Text("Veces preparada: ${state.data.totalPreparaciones}")
+                        Text("Opiniones totales: ${state.data.totalOpiniones}")
                     }
+                    is EstadisticasUiState.Error -> Text("Error cargando estadísticas")
+                    else -> {}
                 }
 
                 Spacer(modifier = Modifier.height(32.dp))
