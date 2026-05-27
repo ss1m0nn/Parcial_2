@@ -8,8 +8,17 @@ import com.example.parcial_2.model.remote.RetrofitClient.apiService
 
 class RecetaRepository {
 
-    suspend fun obtenerEstadisticas(id: String): StatsResponse {
-        return apiService.getEstadisticas(id)
+    suspend fun obtenerEstadisticas(id: String): Result<StatsResponse> {
+        return try {
+            val response = api.getEstadisticas(id)
+            if (response.success && response.data != null) {
+                Result.success(response.data)
+            } else {
+                Result.failure(Exception(response.message ?: "No se pudieron obtener estadísticas"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
     }
 
     private val api = RetrofitClient.apiService

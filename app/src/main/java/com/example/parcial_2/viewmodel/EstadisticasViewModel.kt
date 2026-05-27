@@ -29,12 +29,16 @@ class EstadisticasViewModel : ViewModel() {
     fun cargarDatos(id: String) {
         viewModelScope.launch {
             _uiState.value = EstadisticasUiState.Loading
-            try {
-                val data = repository.obtenerEstadisticas(id)
-                _uiState.value = EstadisticasUiState.Success(data)
-            } catch (e: Exception) {
-                _uiState.value = EstadisticasUiState.Error(e.message ?: "Error desconocido")
-            }
+            val result = repository.obtenerEstadisticas(id)
+
+            result.fold(
+                onSuccess = { data ->
+                    _uiState.value = EstadisticasUiState.Success(data)
+                },
+                onFailure = { error ->
+                    _uiState.value = EstadisticasUiState.Error(error.message ?: "Error desconocido")
+                }
+            )
         }
     }
 }

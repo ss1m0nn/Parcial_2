@@ -33,6 +33,9 @@ interface ApiService {
     @POST("api/opiniones")
     suspend fun crearOpinion(@Body opinion: OpinionRequest): ApiResponse<Opinion>
 
+    // En ApiService.kt
     @GET("api/recetas/{id}/estadisticas")
-    suspend fun getEstadisticas(@Path("id") id: String): StatsResponse
+    suspend fun getEstadisticas(@Path("id") id: String): ApiResponse<StatsResponse>
+
+
 }
